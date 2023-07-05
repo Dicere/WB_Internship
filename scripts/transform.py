@@ -83,6 +83,15 @@ class Transform_data:
 iterator = data_loader.Loader(step=config['step'])
 transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
 
+model = CatBoostClassifier()
+model.load_model(config['path_model_cat'])
+
 for value in iterator:
     data = transformer.transform(value)
-    print(data)
+    pred_marks = (model.predict_proba(data)[:, 1]> config['threshold']).astype('int')
+    df_result = pd.DataFrame({'id1': value['id1'],
+                'id2': value['id2'],
+                'id3': value['id3'],
+                'Label': pred_marks})
+    df_result.to_csv(config['path_for_save'])
+    print(pred_marks)
