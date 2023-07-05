@@ -39,7 +39,7 @@ class Transform_data:
     def division(self,row,firs_f,second_f):
         return row.loc[:,firs_f] / row.loc[:,second_f]
     
-    def get_agg_data(self,row,ids):
+    def get_agg_data(self,row,ids,general_columns):
         set1 = set(self.list_id3_df_agg)
         set2 = set(ids)
         missing_ids = list(set2 - set1)
@@ -48,17 +48,15 @@ class Transform_data:
 
         df_merged.loc[df_merged['id3'].isin(missing_ids), self.col_by_id3] = row.loc[row['id3'].isin(missing_ids), self.list_colmn_id3].values
 
-        print(df_merged[self.col_by_id3])
-        # print(row.loc[row['id3'].isin(missing_ids), self.list_colmn_id3])
-        # print(df_merged[df_merged['id3']==current_ids])
-        # df_merged = 
+        return df_merged[general_columns]
 
 
     
     def transform(self,row):
+        columns_strat_agg = list(row.drop('label', axis=1).columns[4::]) + self.col_by_id3
         ids = row['id3']
-        self.get_agg_data(row,ids)
-        row =row[row.drop('label', axis=1).columns[4::]]
+        row = self.get_agg_data(row,ids,columns_strat_agg)
+        # row =row[row.drop('label', axis=1).columns[4::]]
         i=0
         
         # if agg_row.empty:
@@ -66,31 +64,31 @@ class Transform_data:
         #     row = row.assign(**dict_values)
         # else:
         #     row.loc[:,self.col_by_id3] = agg_row[self.col_by_id3].values
-        # if self.calc_dict == {}:
-        #     for item in self.list_colmn_calc:
-        #         parts = item.split('_')
-        #         key = parts[0]
-        #         values = [parts[1], parts[2]]
-        #         if key in self.calc_dict:
-        #             self.calc_dict[key].extend(values)
-        #         else:
-        #             self.calc_dict[key] = values
-        # for conversions in self.calc_dict.keys():
-        #     for iter in range(0,len(self.calc_dict[conversions]),2):
-        #         row[self.list_colmn_calc[i]]=self.conversions_list[conversions](row,self.calc_dict[conversions][iter],self.calc_dict[conversions][iter+1])
-        #         i+=1
-        # row.replace([np.inf, -np.inf], 0, inplace=True)
-        # return row
+        if self.calc_dict == {}:
+            for item in self.list_colmn_calc:
+                parts = item.split('_')
+                key = parts[0]
+                values = [parts[1], parts[2]]
+                if key in self.calc_dict:
+                    self.calc_dict[key].extend(values)
+                else:
+                    self.calc_dict[key] = values
+        for conversions in self.calc_dict.keys():
+            for iter in range(0,len(self.calc_dict[conversions]),2):
+                row[self.list_colmn_calc[i]]=self.conversions_list[conversions](row,self.calc_dict[conversions][iter],self.calc_dict[conversions][iter+1])
+                i+=1
+        row.replace([np.inf, -np.inf], 0, inplace=True)
+        return row
 
 col_id3 = ['f1_by_id3_median', 'f6_by_id3_interkvartil_razmah', 'f7_by_id3_mean']
 col_calculated = ['sum_f3_f6', 'division_f1_f2', 'division_f4_f7', 'division_f7_f5', 'division_f7_f8', 'multiplication_f3_f3']
 pattern = r'^f\d+'
 
-iterator = data_loader.Loader(step=10)
+iterator = data_loader.Loader()
 transformer = Transform_data(col_id3,pattern,col_calculated,df_agg)
 
 for value in iterator:
     # print(value)
     data = transformer.transform(value)
-    # print(data[col_id3])
+    print(data)
     # break
