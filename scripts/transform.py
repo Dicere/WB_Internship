@@ -4,8 +4,17 @@ from catboost import CatBoostClassifier,Pool
 import numpy as np
 import random
 import re
+import json
 
-df_agg = pd.read_csv('./scripts/db_agg_by_id3.csv',index_col=[0])
+def read_config(file_path):
+    with open(file_path, 'r') as config_file:
+        config_data = json.load(config_file)
+    return config_data
+
+config_file_path = './scripts/config_transform.json'
+config = read_config(config_file_path)
+
+df_agg = pd.read_csv(config['path_df_agg'],index_col=[0])
 
 kvad_sum=(lambda x: sum(i**2 for i in x))
 kvad_sum.__name__ = 'kvad_sum'
@@ -43,11 +52,8 @@ class Transform_data:
         set1 = set(self.list_id3_df_agg)
         set2 = set(ids)
         missing_ids = list(set2 - set1)
-        # current_ids = set2-set(missing_ids)
         df_merged = pd.merge(row, self.df_agg,left_on='id3', right_on='id3', how='left')
-
         df_merged.loc[df_merged['id3'].isin(missing_ids), self.col_by_id3] = row.loc[row['id3'].isin(missing_ids), self.list_colmn_id3].values
-
         return df_merged[general_columns]
 
 
@@ -56,14 +62,7 @@ class Transform_data:
         columns_strat_agg = list(row.drop('label', axis=1).columns[4::]) + self.col_by_id3
         ids = row['id3']
         row = self.get_agg_data(row,ids,columns_strat_agg)
-        # row =row[row.drop('label', axis=1).columns[4::]]
         i=0
-        
-        # if agg_row.empty:
-        #     dict_values = dict(zip(self.col_by_id3,row[self.list_colmn_id3].values.astype(list)[0]))
-        #     row = row.assign(**dict_values)
-        # else:
-        #     row.loc[:,self.col_by_id3] = agg_row[self.col_by_id3].values
         if self.calc_dict == {}:
             for item in self.list_colmn_calc:
                 parts = item.split('_')
@@ -80,15 +79,10 @@ class Transform_data:
         row.replace([np.inf, -np.inf], 0, inplace=True)
         return row
 
-col_id3 = ['f1_by_id3_median', 'f6_by_id3_interkvartil_razmah', 'f7_by_id3_mean']
-col_calculated = ['sum_f3_f6', 'division_f1_f2', 'division_f4_f7', 'division_f7_f5', 'division_f7_f8', 'multiplication_f3_f3']
-pattern = r'^f\d+'
 
-iterator = data_loader.Loader()
-transformer = Transform_data(col_id3,pattern,col_calculated,df_agg)
+iterator = data_loader.Loader(step=config['step'])
+transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
 
 for value in iterator:
-    # print(value)
     data = transformer.transform(value)
     print(data)
-    # break

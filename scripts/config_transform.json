@@ -1,0 +1,8 @@
+{
+    "path_df_agg": "./scripts/db_agg_by_id3.csv",
+    "col_id3": ["f1_by_id3_median", "f6_by_id3_interkvartil_razmah", "f7_by_id3_mean"],
+    "col_calculated": ["sum_f3_f6", "division_f1_f2", "division_f4_f7", "division_f7_f5", "division_f7_f8", "multiplication_f3_f3"],
+    "pattern": "^f\\d+",
+    "step": null
+    
+  }
