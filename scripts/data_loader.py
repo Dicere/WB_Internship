@@ -3,30 +3,30 @@ import pandas as pd
 import numpy as np
 import random
 
-df_test = pd.read_csv('./data_for_test.csv',index_col=[0])
-df_agg = pd.read_csv('./db_agg_by_id3.csv',index_col=[0])
+df_test = pd.read_csv('./scripts/data_for_test.csv',index_col=[0])
+df_agg = pd.read_csv('./scripts/db_agg_by_id3.csv',index_col=[0])
 
 
 class Loader:
-    def __init__(self, df=df_test,df_agg=df_agg,num_rows=None):
+    def __init__(self, df=df_test,df_agg=df_agg,step=None):
         self.df = df
         self.df_agg = df_agg
         self.num_rows = len(df)
         self.current_row = 0
-        self.num_rows = num_rows if num_rows is not None else len(df)
+        self.step = step if step is not None else len(df)
     
     def __iter__(self):
         return self
     
     def __next__(self):
-
+        
         if self.current_row >= self.num_rows:
             raise StopIteration
 
         start_row = self.current_row
-        end_row = min(self.current_row + self.num_rows, self.num_rows)
+        end_row = min(self.current_row + self.step, len(self.df))
         rows = self.df.iloc[start_row:end_row]
-        self.current_row += self.num_rows
+        self.current_row += self.step
         
         return rows
     
@@ -58,11 +58,8 @@ class Loader:
         # return filtered_df
 
     
-# iterator = Loader()
+# iterator = Loader(step=10)
 
 # # Итерируемся по значениям и печатаем их
 # for value in iterator:
-#     # print(value['id3'])
-#     # print(df_agg.id3)
-#     iterator.get_agg_data(value['id3'])
-#     break
+#     print(value)

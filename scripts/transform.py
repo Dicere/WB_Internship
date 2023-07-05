@@ -5,7 +5,7 @@ import numpy as np
 import random
 import re
 
-df_agg = pd.read_csv('./db_agg_by_id3.csv',index_col=[0])
+df_agg = pd.read_csv('./scripts/db_agg_by_id3.csv',index_col=[0])
 
 kvad_sum=(lambda x: sum(i**2 for i in x))
 kvad_sum.__name__ = 'kvad_sum'
@@ -43,9 +43,14 @@ class Transform_data:
         set1 = set(self.list_id3_df_agg)
         set2 = set(ids)
         missing_ids = list(set2 - set1)
-        current_ids = set2-set(missing_ids)
+        # current_ids = set2-set(missing_ids)
         df_merged = pd.merge(row, self.df_agg,left_on='id3', right_on='id3', how='left')
-        print(df_merged)
+
+        df_merged.loc[df_merged['id3'].isin(missing_ids), self.col_by_id3] = row.loc[row['id3'].isin(missing_ids), self.list_colmn_id3].values
+
+        print(df_merged[self.col_by_id3])
+        # print(row.loc[row['id3'].isin(missing_ids), self.list_colmn_id3])
+        # print(df_merged[df_merged['id3']==current_ids])
         # df_merged = 
 
 
@@ -81,11 +86,11 @@ col_id3 = ['f1_by_id3_median', 'f6_by_id3_interkvartil_razmah', 'f7_by_id3_mean'
 col_calculated = ['sum_f3_f6', 'division_f1_f2', 'division_f4_f7', 'division_f7_f5', 'division_f7_f8', 'multiplication_f3_f3']
 pattern = r'^f\d+'
 
-iterator = data_loader.Loader(num_rows=50)
+iterator = data_loader.Loader(step=10)
 transformer = Transform_data(col_id3,pattern,col_calculated,df_agg)
 
 for value in iterator:
-    print(value)
-    # data = transformer.transform(value)
+    # print(value)
+    data = transformer.transform(value)
     # print(data[col_id3])
     # break
