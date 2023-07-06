@@ -1,4 +1,4 @@
 {
-    "path_for_data": "./scripts/data_for_test.csv",
+    "path_for_data": "./scripts/data_for_train.csv",
     "step": 50
   }

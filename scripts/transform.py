@@ -1,8 +1,6 @@
-import data_loader
 import pandas as pd
 from catboost import CatBoostClassifier,Pool
 import numpy as np
-import random
 import re
 import json
 
@@ -89,20 +87,4 @@ def predict(value):
             'id2': value['id2'],
             'id3': value['id3'],
             'Label': pred_marks})
-    # df_result.to_csv(config['path_for_save'])
     return pred_marks,df_result
-
-# iterator = data_loader.Loader(config['path_for_data'],step=config['step'])
-# transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
-
-
-
-# for value in iterator:
-#     data = transformer.transform(value)
-#     pred_marks = (model.predict_proba(data)[:, 1]> config['threshold']).astype('int')
-#     df_result = pd.DataFrame({'id1': value['id1'],
-#                 'id2': value['id2'],
-#                 'id3': value['id3'],
-#                 'Label': pred_marks})
-#     df_result.to_csv(config['path_for_save'])
-#     print(pred_marks)
