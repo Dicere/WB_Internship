@@ -1,4 +1,5 @@
 {
+    "path_for_data": "./scripts/data_for_test.csv",
     "path_df_agg": "./scripts/db_agg_by_id3.csv",
     "path_model_cat":"./scripts/cat_model.cbm",
     "path_for_save":"./scripts/result.csv",

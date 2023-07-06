@@ -78,20 +78,31 @@ class Transform_data:
                 i+=1
         row.replace([np.inf, -np.inf], 0, inplace=True)
         return row
-
-
-iterator = data_loader.Loader(step=config['step'])
-transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
-
-model = CatBoostClassifier()
-model.load_model(config['path_model_cat'])
-
-for value in iterator:
+    
+def predict(value):
+    transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
     data = transformer.transform(value)
+    model = CatBoostClassifier()
+    model.load_model(config['path_model_cat'])
     pred_marks = (model.predict_proba(data)[:, 1]> config['threshold']).astype('int')
     df_result = pd.DataFrame({'id1': value['id1'],
-                'id2': value['id2'],
-                'id3': value['id3'],
-                'Label': pred_marks})
-    df_result.to_csv(config['path_for_save'])
-    print(pred_marks)
+            'id2': value['id2'],
+            'id3': value['id3'],
+            'Label': pred_marks})
+    # df_result.to_csv(config['path_for_save'])
+    return pred_marks,df_result
+
+# iterator = data_loader.Loader(config['path_for_data'],step=config['step'])
+# transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
+
+
+
+# for value in iterator:
+#     data = transformer.transform(value)
+#     pred_marks = (model.predict_proba(data)[:, 1]> config['threshold']).astype('int')
+#     df_result = pd.DataFrame({'id1': value['id1'],
+#                 'id2': value['id2'],
+#                 'id3': value['id3'],
+#                 'Label': pred_marks})
+#     df_result.to_csv(config['path_for_save'])
+#     print(pred_marks)

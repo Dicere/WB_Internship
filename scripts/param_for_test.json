@@ -1,0 +1,4 @@
+{
+    "path_for_data": "./scripts/data_for_test.csv",
+    "step": 50
+  }
