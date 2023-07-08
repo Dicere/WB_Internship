@@ -76,13 +76,13 @@ class Transform_data:
         df_agg: 
             Df с данными сгруппированными по id3.
         """
-        self.col_by_id3 = col_by_id3 # название колонок которые будем использовать из df_agg
-        self.df_agg = df_agg #df с данными сгруппированными по id3
-        self.list_id3_df_agg = self.df_agg['id3'] # список id3 в df_agg
-        self.pattern = pattern # паттерн по которому мы будем искать все f фичи в df
+        self.col_by_id3 = col_by_id3
+        self.df_agg = df_agg 
+        self.list_id3_df_agg = self.df_agg['id3'] 
+        self.pattern = pattern 
         self.list_colmn_id3 = [re.search(pattern, item).group(0) for item in self.col_by_id3]
-        self.list_colmn_calc = list_colmn_calc # название колонок которые мы получаем путём сложения или умножения и так далее
-        self.calc_dict = {} # словарь в котором будет лежать key: название операции (умножение,...), value: лист с f, где слева f которая используется в левой части выражения, правая используется справа
+        self.list_colmn_calc = list_colmn_calc
+        self.calc_dict = {}
         self.conversions_list = ['sum','subtraction','division','multiplication']
 
     def conversions(self,conversion,row,firs_f,second_f):
@@ -143,11 +143,19 @@ class Transform_data:
     def transform(self,row):
         """
         Метод, который трансформирует данные для того чтобы потом сделать предикт.
-        Первый этап добавить данные из df_agg через метод get_agg_data(). Второй этап необходимо выполнить
-        различные действия между столбцами (умножение,...). Сначала формируется словарь calc_dict.
-        Потом в цикле проходим по списку операций, получаем соотвествующие столбцы из наших данных и выполняем над ними операции.
-        Создаём столбцы и заполняем их получеными значениями
-        Метод возвращает трансформированный df
+
+        Параметры
+        ---------
+        row : 
+            Блок данных.
+        ids:
+            Список id3 из row.
+        general_columns:
+            Список колонок которые должны быть получены в результате присоединения данных.
+
+        Возвращаемое значение
+        ---------------------
+        Преобразованный блок данных.
         """
         columns_strat_agg = list(row.drop('label', axis=1).columns[4::]) + self.col_by_id3
         ids = row['id3']
@@ -171,10 +179,20 @@ class Transform_data:
     
 def predict(value):
     """
-    Метод для получения предикта, создаём объект класса Transform_data.
-    Трансформируем данные, подгружаем модель.
-    Делаем предикт на данных которые мы преобразовали используя подобранный порог.
-    Возвращает вектор предиктов, и df с id1,id2,id3 и прогнозом 
+    Метод для получения предикта.
+
+    Параметры
+    ---------
+    value : 
+        Блок данных.
+
+    Возвращаемое значение
+    ---------------------
+    pred_marks:
+        Вектор прогнозов.
+    pred_marks:
+        Df c прогнозами.
+
     """
     transformer = Transform_data(config['col_id3'],config['pattern'],config['col_calculated'],df_agg)
     data = transformer.transform(value)
