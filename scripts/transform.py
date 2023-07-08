@@ -29,22 +29,53 @@ class Transform_data:
 
         Атрибуты
         ------
-            col_by_id3: 
-                Название колонок которые будем использовать из df_agg.
-            df_agg: 
-                Df с данными сгруппированными по id3.
-            list_id3_df_agg: 
-                Cписок id3 в df_agg.
-            step : int 
-                Шаг чтения, если ничего не указано шаг будет равен количетсву строк в df (по умолчанию None).
+        col_by_id3: 
+            Название колонок которые будем использовать из df_agg.
+        df_agg: 
+            Df с данными сгруппированными по id3.
+        list_id3_df_agg: 
+            Cписок id3 в df_agg.
+        pattern : str 
+            Паттерн по которому мы будем искать все f признаки в df.
+        list_colmn_id3: 
+            Список f признаков из col_by_id3.
+        list_colmn_calc: 
+            Список признаков которые потом будут получены путём арифимитечксих операций над ними.
+        calc_dict: 
+            Словарь в котором будет лежать key: название операции (умножение,...), value: лист с f признаками.
+        conversions_list: 
+            Список арифметических действий.
         Методы
         ------
+        def def summ(row,firs_f,second_f):
+            Возвращает сумму между столбцами.
+        def subtraction(row,firs_f,second_f):
+            Возвращает разность между столбцами.
+        def multiplication(row,firs_f,second_f):
+            Возвращает произведение между столбцами.
+        def division(row,firs_f,second_f):
+            Возвращает частное между столбцами.
         def get_agg_data(row,ids,general_columns):
             Возвращает df к которому добавлены данные из df_agg.
         def transform(row):
             Используется для преобразования данных.
     """
-    def __init__(self,col_by_id3,pattern,list_colmn_calc,df_agg=df_agg):
+    def __init__(self,col_by_id3,pattern:str,list_colmn_calc,df_agg=df_agg):
+        """Inits Loader.
+        
+        Параметры
+        ------
+        col_by_id3: 
+            Название колонок которые будем использовать из df_agg.
+        pattern : str 
+            Паттерн по которому мы будем искать все f признаки в df.
+        list_colmn_id3: 
+            Список f признаков из col_by_id3.
+        list_colmn_calc: 
+            Список признаков которые потом будут получены путём арифимитечксих операций над ними.
+        df_agg: 
+            Df с данными сгруппированными по id3.
+        """
         self.col_by_id3 = col_by_id3 # название колонок которые будем использовать из df_agg
         self.df_agg = df_agg #df с данными сгруппированными по id3
         self.list_id3_df_agg = self.df_agg['id3'] # список id3 в df_agg
@@ -52,23 +83,53 @@ class Transform_data:
         self.list_colmn_id3 = [re.search(pattern, item).group(0) for item in self.col_by_id3]
         self.list_colmn_calc = list_colmn_calc # название колонок которые мы получаем путём сложения или умножения и так далее
         self.calc_dict = {} # словарь в котором будет лежать key: название операции (умножение,...), value: лист с f, где слева f которая используется в левой части выражения, правая используется справа
-        self.conversions_list = {'sum':self.summ,'subtraction':self.subtraction,'division':self.division,'multiplication':self.multiplication}
+        self.conversions_list = ['sum','subtraction','division','multiplication']
 
-    def summ(self,row,firs_f,second_f):
-        return row.loc[:,firs_f] + row.loc[:,second_f]
-    def subtraction(self,row,firs_f,second_f):
-        return row.loc[:,firs_f] - row.loc[:,second_f]
-    def multiplication(self,row,firs_f,second_f):
-        return row.loc[:,firs_f] * row.loc[:,second_f]
-    def division(self,row,firs_f,second_f):
-        return row.loc[:,firs_f] / row.loc[:,second_f]
+    def conversions(self,conversion,row,firs_f,second_f):
+        """
+        Метод summ возвращает сумму значений в столбцах.
+
+        Параметры
+        ---------
+        conversions : 
+            Тип операции.
+        row : 
+            Блок данных.
+        firs_f:
+            f признак, в левой части выражения.
+        second_f:
+            f признак, в правой части выражения.
+
+        Возвращаемое значение
+        ---------------------
+        Результат операции.
+        """
+        if conversion == 'sum':
+            return row.loc[:,firs_f] + row.loc[:,second_f]
+        if conversion == 'subtraction':
+            return row.loc[:,firs_f] - row.loc[:,second_f]
+        if conversion == 'multiplication':
+            return row.loc[:,firs_f] * row.loc[:,second_f]
+        if conversion == 'division':
+            return row.loc[:,firs_f] / row.loc[:,second_f]
+        
     
     def get_agg_data(self,row,ids,general_columns):
         """
-        Метод который производит первый этап обработки. Сначала вычитает множества чтобы получить список id3,
-        которых ещё нету в df_agg, то что уже есть в df_agg присоединяется к нашим данным. После, те id3 которых не было в df_agg
-        заполняються соответсвующими значениями из столбцов f1-f8.
-        Возвращает df с добавленными данными
+        Метод summ возвращает сумму значений в столбцах.
+
+        Параметры
+        ---------
+        row : 
+            Блок данных.
+        ids:
+            Список id3 из row.
+        general_columns:
+            Список колонок которые должны быть получены в результате присоединения данных.
+
+        Возвращаемое значение
+        ---------------------
+        Df с добавленными данными.
         """
         set1 = set(self.list_id3_df_agg)
         set2 = set(ids)
@@ -101,9 +162,9 @@ class Transform_data:
                     self.calc_dict[key].extend(values)
                 else:
                     self.calc_dict[key] = values
-        for conversions in self.calc_dict.keys():
-            for iter in range(0,len(self.calc_dict[conversions]),2):
-                row[self.list_colmn_calc[i]]=self.conversions_list[conversions](row,self.calc_dict[conversions][iter],self.calc_dict[conversions][iter+1])
+        for cur_conversion in self.calc_dict.keys():
+            for iter in range(0,len(self.calc_dict[cur_conversion]),2):
+                row[self.list_colmn_calc[i]]=self.conversions(cur_conversion,row,self.calc_dict[cur_conversion][iter],self.calc_dict[cur_conversion][iter+1])
                 i+=1
         row.replace([np.inf, -np.inf], 0, inplace=True)
         return row
