@@ -17,7 +17,7 @@ def read_config(file_path: str):
         config_data = json.load(config_file)
     return config_data
 
-config_file_path = './scripts/config_transform.json' # Путь до конфига
+config_file_path = './scripts/configs/config_transform.json' # Путь до конфига
 config = read_config(config_file_path)
 
 df_agg = pd.read_csv(config['path_df_agg'],index_col=[0]) # df в котором данные сгруппированные по id3 по которым посчитаны различные статистики

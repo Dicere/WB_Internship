@@ -1,7 +1,7 @@
 {
-    "path_for_data": "./scripts/data_for_test.csv",
-    "path_df_agg": "./scripts/db_agg_by_id3.csv",
-    "path_model_cat":"./scripts/cat_model.cbm",
+    "path_for_data": "./scripts/data/data_for_test.csv",
+    "path_df_agg": "./scripts/data/db_agg_by_id3.csv",
+    "path_model_cat":"./scripts/models/cat_model.cbm",
     "path_for_save":"./scripts/result.csv",
     "col_id3": ["f1_by_id3_median", "f6_by_id3_interkvartil_razmah", "f7_by_id3_mean"],
     "col_calculated": ["sum_f3_f6", "division_f1_f2", "division_f4_f7", "division_f7_f5", "division_f7_f8", "multiplication_f3_f3"],
